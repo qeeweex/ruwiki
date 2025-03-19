@@ -83,6 +83,11 @@ def get_article(name):
         article_text=article_details["article_text"],
         article_image=article_details["article_image"]
         )
+
+@app.route("/create_article")
+def create_article():
+    return render_template('create_article.html')
+
 @app.route("/")
 @app.route("/index")
 def index():
