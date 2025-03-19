@@ -1,0 +1,67 @@
+body {
+    background-color: rgb(200, 194, 194);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+}
+
+.article {
+    width: 1000px;
+    border-radius: 10px;
+    padding-left: 20px;
+
+    display: flex;
+}
+
+.article_text {
+    width: 65%;
+
+    background-color: whitesmoke;
+    margin-right: 10px;
+    padding-left: 20px;
+    border-radius: 10px;
+}
+
+.article_image {
+    width: 35%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    background-color: whitesmoke;
+    border-radius: 10px;
+}
+
+.article_list {
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding-left: 20px;
+    padding-left: 20px;
+    width: 1000px;
+}
+
+.article_table { 
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.article_card { 
+    width: 250px;
+    height: 150px;
+    border: 1px lightslategrey solid;
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.article_card:visited {
+    color: darkblue;
+}
