@@ -1,6 +1,18 @@
-from flask import Flask, render_template
+from flask import (
+    Flask, 
+    render_template, 
+    request,
+    redirect,
+    url_for, 
+    send_from_directory)
+import os
+import article
+
 
 app = Flask(__name__)
+
+app.config['UPLOAD_FOLDER'] = 'uploads/'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
 
@@ -76,22 +88,38 @@ def get_article(name):
     if name not in database:
         return "<h1>Такой статьи не существует!</h1>"
     
-    article_details = database[name]
+    article = database[name]
     return render_template(
         "article.html",
-        article_title=article_details["article_title"],
-        article_text=article_details["article_text"],
-        article_image=article_details["article_image"]
+        article=article
         )
 
-@app.route("/create_article")
+@app.route("/create_article", methods=["GET", "POST"])
 def create_article():
-    return render_template('create_article.html')
+    if request.method == "GET":
+        return render_template('create_article.html')
+    
+    # Далее обработка Post-запроса
+    title = request.form.get("title")
+    content = request.form.get("content")
+    image = request.files.get("photo")
+
+    if image is not None and image.filename:
+        image_path = image.filename
+        image.save(app.config["UPLOAD_FOLDER"] + image_path)
+    else:
+        image_path = None
+
+    database[title] = article.Article(title, content, image_path)
+    return redirect(url_for('index'))
 
 @app.route("/")
 @app.route("/index")
 def index():
     return render_template("index.html")
 
+@app.route('/uploads/<filename>')
+def uploaded_photo(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     
 app.run(debug=True, port=8080)
