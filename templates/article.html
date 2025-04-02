@@ -17,12 +17,11 @@
         </div>
 
         <div class="article_image">
-            {% if article.image  %}
+            {% if article.image %}
                 <img
                     src="{{ url_for('uploaded_photo', filename=article.image) }}"
-                    alt="{{ article_title }}"
+                    alt="{{ article.title }}"
                     style="height: 150px; width: auto; margin-bottom: 10px;">
-                
 
                 <div><b>{{ article.title }}</b></div>
             {% else %}
