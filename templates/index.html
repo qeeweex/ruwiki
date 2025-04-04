@@ -15,13 +15,17 @@
         <h1>Доступные статьи</h1>
 
         <div class="article_table">
-            {% for article in articles %}
-            <a
-                class="article_card"
-                href="{{ url_for('get_article', title=article.title) }}">
-                <h3>{{ article.title }}</h3>
-            </a>
-            {% endfor %}
+            {% for article_group in groups %}
+            <div class="article_table_row">
+                {% for article in article_group %}
+                <a
+                    class="article_card"
+                    href="{{ url_for('get_article', title=article.title) }}">
+                    <h3>{{ article.title }}</h3>
+                </a>
+                {% endfor %}
+            </div>
+                {% endfor %}
         </div>
     </div>
 </body>
