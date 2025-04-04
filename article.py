@@ -6,3 +6,4 @@ class Article:
     title: str
     content: str
     image: str | None = None
+    id: int | None = None
