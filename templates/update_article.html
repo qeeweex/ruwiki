@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание статьи</title>
+    <title>Редактирование статьи</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>Редактировать статью</h1>
+
+    {% if error %}
+    <div class="error_message">
+        Статья с таким именем уже есть!
+    </div>
+    {% endif %}
 
     <form
             action="{{ url_for('create_article') }}"
@@ -30,7 +36,7 @@
             <input type="file" id="photo" name="photo" accept=".jpeg, .jpg, .png"> 
         </div>
 
-        <button type="submit">Сохранить</button>
+        <button type="submit">Создать статью</button>
     </form>
 </body>
 </html>

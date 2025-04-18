@@ -4,11 +4,11 @@ from flask import (
     request,
     redirect,
     url_for,
-    send_from_directory)
+    send_from_directory,
+    abort)
 import os
 from article import Article
 from database import Database
-
 
 
 app = Flask(__name__)
@@ -17,6 +17,16 @@ Database.create_article_table()
 # Создаем по умолчанию папку 'uploads/' для загрузки картинок
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static/img'),
+        'favicon.ico',
+        mimetype="image/vnd.microsoft.icon"
+    )
+
 
 @app.route("/article/<title>")
 def get_article(title):
@@ -56,16 +66,30 @@ def create_article():
 
     return redirect(url_for('index'))
 
+
+@app.route("/delete_article/<id>", methods=["POST"])
+def delete_article(id):
+    if not Database.delete(id):
+        abort(404, f"Article id {id} doesn't exist")
+    
+    return redirect(url_for('index'))
+
+
+@app.route("/update_article/<id>", methods=["GET", "POST"])
+def update_article(id):
+    if request.method == "GET":
+        return render_template("update_article.html")
+
+
 @app.route("/")
 @app.route("/index")
 def index():
     articles = Database.get_all_articles()
-    
-    
+
     count_in_group = 4
     groups = []
-    for i in range(0, len(articles), count_in_group):
-        groups.append(articles[i:i+count_in_group])
+    for i in range(0, len(articles), count_in_group): # 0, 4, 8, 12, ...
+        groups.append(articles[i:i+count_in_group]) # [0:4], [4:8], [8:12], ...
 
     return render_template("index.html", groups=groups)
 
@@ -75,4 +99,4 @@ def uploaded_photo(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-app.run(debug=True, port=8080)
+app.run(debug=True, port=8088)
