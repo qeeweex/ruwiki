@@ -19,10 +19,14 @@ body {
     padding: 10px;
 }
 
-@media (min-width: 500px) {
+@media (min-width: 200px) and (max-width: 800px) {
+    
+    .left_controls {
+        display: none;
+    }
     
     .article_controls {
-        display: none;
+        flex-direction: column;
     }
 }
 
