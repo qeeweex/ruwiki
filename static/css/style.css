@@ -13,10 +13,31 @@ body {
     width: 1000px;
     border-radius: 10px;
     display: flex;
-    justify-content: end;
+    justify-content: center;
     margin-bottom: 10px;
     background-color: whitesmoke;
     padding: 10px;
+}
+
+@media (min-width: 500px) {
+    
+    .article_controls {
+        display: none;
+    }
+}
+
+.left_controls {
+    width: 50%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.right_controls {
+    width: 50%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
 }
 
 .controls_del_btn {
@@ -38,7 +59,7 @@ body {
     background-color: rgb(5, 211, 2);
     padding: 5px;
     text-decoration: none;
-    border-color: rgb(5, 211, 2);
+    border-color: rgb(5, 211, 2);;
     color: white;
     display: flex;
     justify-content: center;
@@ -186,4 +207,11 @@ body {
     text-decoration: none;
     font-size: 20px;
     border-radius: 5px;
+}
+
+.image_preview {
+    display: block;
+    height: 150px;
+    width: auto;
+    margin-bottom: 10px;
 }

@@ -77,8 +77,37 @@ def delete_article(id):
 
 @app.route("/update_article/<id>", methods=["GET", "POST"])
 def update_article(id):
+    article = Database.find_article_by_id(id)
+    if article is None:
+        abort(404, f"Article id {id} doesn't exist")
+
     if request.method == "GET":
-        return render_template("update_article.html")
+        return render_template("update_article.html", article=article)
+    
+    # Обработка POST-запроса
+    title = request.form.get("title")
+    if title is None:
+        title = article.title
+
+    content = request.form.get("content")
+    if content is None:
+        content = article.content
+    
+    image = request.files.get("photo")
+    if image is not None and image.filename:
+        # Костыль: может вызвать проблемы с сохранением
+        # картинок в папку
+        image_path = image.filename
+        image.save(app.config["UPLOAD_FOLDER"] + image_path)
+        
+        filename = image.filename
+    else:
+        # Если мы не задавали каритинку для статьи,
+        # то надо взять старую из объекта article
+        filename = article.image
+
+    Database.update(id, title, content, filename)
+    return redirect(url_for('get_article', title=title))
 
 
 @app.route("/")
