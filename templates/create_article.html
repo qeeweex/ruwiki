@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Редактировать статью</h1>
+    <div class="main">
+        <h1>Cоздать статью</h1>
 
-    <form
+        <form
             action="{{ url_for('create_article') }}"
             method="POST"
             enctype="multipart/form-data"
@@ -30,7 +31,7 @@
             <input type="file" id="photo" name="photo" accept=".jpeg, .jpg, .png"> 
         </div>
 
-        <button type="submit">Сохранить</button>
-    </form>
+        <button type="submit">Создать</button>
+    </div>
 </body>
 </html>
