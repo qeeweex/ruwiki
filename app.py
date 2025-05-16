@@ -19,6 +19,14 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register.html")
+    
+    # POST-запрос
+    return redirect(url_for('index'))
+
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(
