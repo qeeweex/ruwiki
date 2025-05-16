@@ -5,13 +5,16 @@ from flask import (
     redirect,
     url_for,
     send_from_directory,
-    abort)
+    abort,
+    flash,
+)
 import os
 from article import Article
 from database import Database
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'chel12312'
 Database.create_article_table()
 
 # Создаем по умолчанию папку 'uploads/' для загрузки картинок
@@ -25,6 +28,31 @@ def register():
         return render_template("register.html")
     
     # POST-запрос
+    user_name = request.form.get("user_name")
+    email = request.form.get("email")
+    password = request.form.get("password")
+    password_repeat = request.form.get("password_repeat")
+    
+    if not user_name:
+        flash("Имя пользователя не может быть пустым!")
+        return redirect(request.url)
+    
+    if not email:
+        flash("Электронная почта не может быть пустым!")
+        return redirect(request.url)
+
+    if not password:
+        flash("Пароль не может быть пустым!")
+        return redirect(request.url)
+
+    if not password_repeat:
+        flash("Повторите пароль")
+        return redirect(request.url)
+    
+    if password != password_repeat:
+        flash("Пароли не совпадают!")
+        return redirect(request.url)
+    
     return redirect(url_for('index'))
 
 @app.route("/favicon.ico")
