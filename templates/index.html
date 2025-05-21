@@ -5,13 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Рувики</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/article_table.css') }}">
 </head>
 <body>
-    <div class="header">
-        <a
-            class="create_btn"
-            href="{{ url_for('create_article') }}"
-        >Создать статью</a>
+    <div class="main">    
+        <div class="header">
+            <a
+                class="create_btn"
+                href="{{ url_for('create_article') }}"
+            >Создать статью</a>
+            <a
+                class="create_btn"
+                href="{{ url_for('register') }}"
+            >Зарегистрироваться</a>
     </div>
 
     <div class="article_list">
@@ -31,5 +37,6 @@
             {% endfor %}
         </div>
     </div>
+    
 </body>
 </html>
