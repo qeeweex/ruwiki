@@ -1,3 +1,4 @@
+import hashlib
 import sqlite3
 from article import Article
 
@@ -107,25 +108,13 @@ class Database:
         id, title, content, image = articles[0]
         return Article(title, content, image, id)
 
-
-class SimpleDatabase:
-    articles = []
-
     @staticmethod
-    def save(article: Article):
-        if SimpleDatabase.find_article_by_title(article.title) is not None:
-            return False
-
-        SimpleDatabase.articles.append(article)
-        return True
-
-    @staticmethod
-    def get_all_articles():
-        return SimpleDatabase.articles
-    
-    @staticmethod
-    def find_article_by_title(title: str):
-        for article in SimpleDatabase.articles:
-            if article.title == title:
-                return article
-        return None
+    def register_user(user_name, email, password):
+        password_hash = hashlib.md5(password.encode()).hexdigest
+        
+        Database.execute(
+            "INSERT INTO users(user_Name, email, password_hash) "
+            "VALUES(?, ?, ?)",
+            [user_name, email, password]
+        )
+        
