@@ -17,10 +17,16 @@ class Database:
         conn.commit()
 
     @staticmethod
-    def create_article_table():
+    def create_tables():
         with open(Database.schema_path) as schema_file:
             sql_code = schema_file.read()
-            Database.execute(sql_code)
+            conn = sqlite3.connect(Database.db_path)
+
+            cursor = conn.cursor()
+            cursor.executescript(sql_code)
+
+            conn.commit()
+            
 
     @staticmethod
     def update(article_id: int, title: str, content: str, image: str) -> bool:
@@ -110,11 +116,20 @@ class Database:
 
     @staticmethod
     def register_user(user_name, email, password):
-        password_hash = hashlib.md5(password.encode()).hexdigest
+        # 1. Узнать , если ли пользователи у который указан такой 
+        # никнейм или почта      
+        users = Database.fetchall(
+            "SELECT * FROM users WHERE user_name = ? OR email = ?",
+            [user_name, email]
+        )
+        if users:
+            return False
         
+        # 2. Получиться хэш от пароля, добавить пользователя в БД
+        password_hash = hashlib.md5(password.encode()).hexdigest()
         Database.execute(
-            "INSERT INTO users(user_Name, email, password_hash) "
+            "INSERT INTO users(user_name, email, password_hash) "
             "VALUES(?, ?, ?)",
             [user_name, email, password]
         )
-        
+        return True
