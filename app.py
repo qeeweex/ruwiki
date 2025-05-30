@@ -80,6 +80,13 @@ def login():
     return redirect(url_for("index"))
 
 
+@app.route("/logout", methods=["POST"])
+def logout():
+    if "user_id" in session:
+        session.clear()
+    return redirect(url_for("index"))
+
+
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(
@@ -119,6 +126,7 @@ def create_article():
     else:
         image_path = None
 
+    author = Database.find_article_by_id(session["user_id"])
     saved = Database.save(
         Article(title, content, image_path)
     )
