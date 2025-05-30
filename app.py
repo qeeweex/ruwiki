@@ -7,6 +7,7 @@ from flask import (
     send_from_directory,
     abort,
     flash,
+    session,
 )
 import os
 from article import Article
@@ -14,8 +15,8 @@ from database import Database
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'chel12312'
-Database.create_article_table()
+app.config['SECRET_KEY'] = 'guzinibambini'
+Database.create_tables()
 
 # Создаем по умолчанию папку 'uploads/' для загрузки картинок
 app.config['UPLOAD_FOLDER'] = 'uploads/'
@@ -32,13 +33,14 @@ def register():
     email = request.form.get("email")
     password = request.form.get("password")
     password_repeat = request.form.get("password_repeat")
-    
+
     if not user_name:
-        flash("Имя пользователя не может быть пустым!")
+        flash("Имя пользователя (user_name) не может быть пустым!")
+        # return redirect(url_for('register'))
         return redirect(request.url)
-    
+
     if not email:
-        flash("Электронная почта не может быть пустым!")
+        flash("Электронная почта не может быть пустой!")
         return redirect(request.url)
 
     if not password:
@@ -46,14 +48,37 @@ def register():
         return redirect(request.url)
 
     if not password_repeat:
-        flash("Повторите пароль")
+        flash("Повторите пароль!")
         return redirect(request.url)
     
     if password != password_repeat:
         flash("Пароли не совпадают!")
         return redirect(request.url)
+
+    saved = Database.register_user(user_name, email, password)
+    if not saved:
+        flash("Пользователь с таким никнеймом или электронной почтой уже есть!")
+        return redirect(request.url)
     
     return redirect(url_for('index'))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+
+    # POST-запрос
+    user_name = request.form.get("user_name")
+    password = request.form.get("password")
+
+    if not Database.can_be_logged_in(user_name, password):
+        flash("Такого пользователя не существует или неверный пароль!")
+        return redirect(request.url)
+    
+    session["user_id"] = Database.find_user_id_by_name_or_email(user_name)
+    return redirect(url_for("index"))
+
 
 @app.route("/favicon.ico")
 def favicon():
@@ -128,17 +153,17 @@ def update_article(id):
     content = request.form.get("content")
     if content is None:
         content = article.content
-    
+
     image = request.files.get("photo")
     if image is not None and image.filename:
-        # Костыль: может вызвать проблемы с сохранением
-        # картинок в папку
+        # Если мы задали новую картинку для статьи,
+        # ее надо сохранить в отдельную папку
         image_path = image.filename
         image.save(app.config["UPLOAD_FOLDER"] + image_path)
-        
-        filename = image.filename
+
+        filename = image_path
     else:
-        # Если мы не задавали каритинку для статьи,
+        # Если мы не задавали картинку для статьи,
         # то надо взять старую из объекта article
         filename = article.image
 
@@ -156,7 +181,11 @@ def index():
     for i in range(0, len(articles), count_in_group): # 0, 4, 8, 12, ...
         groups.append(articles[i:i+count_in_group]) # [0:4], [4:8], [8:12], ...
 
-    return render_template("index.html", groups=groups)
+    return render_template(
+        "index.html",
+        groups=groups,
+        user_count=Database.get_count_of_users()
+    )
 
 
 @app.route('/uploads/<filename>')
