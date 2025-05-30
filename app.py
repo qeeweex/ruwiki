@@ -60,7 +60,7 @@ def register():
         flash("Пользователь с таким никнеймом или электронной почтой уже есть!")
         return redirect(request.url)
     
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route("/login", methods=["GET", "POST"])
