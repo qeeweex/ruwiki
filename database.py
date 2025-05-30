@@ -20,13 +20,13 @@ class Database:
     def create_tables():
         with open(Database.schema_path) as schema_file:
             sql_code = schema_file.read()
+
             conn = sqlite3.connect(Database.db_path)
 
             cursor = conn.cursor()
             cursor.executescript(sql_code)
 
             conn.commit()
-            
 
     @staticmethod
     def update(article_id: int, title: str, content: str, image: str) -> bool:
@@ -113,23 +113,62 @@ class Database:
         
         id, title, content, image = articles[0]
         return Article(title, content, image, id)
-
+    
     @staticmethod
     def register_user(user_name, email, password):
-        # 1. Узнать , если ли пользователи у который указан такой 
-        # никнейм или почта      
+        # 1. Узнать, есть ли пользователи, у которых уже указан такой
+        # никнейм или электронная почта
         users = Database.fetchall(
             "SELECT * FROM users WHERE user_name = ? OR email = ?",
             [user_name, email]
         )
         if users:
             return False
-        
-        # 2. Получиться хэш от пароля, добавить пользователя в БД
-        password_hash = hashlib.md5(password.encode()).hexdigest()
+
+        # 2. Получить хэш от пароля, добавить пользователя в БД
+        password_hash = hashlib.md5( password.encode() ).hexdigest()
         Database.execute(
-            "INSERT INTO users(user_name, email, password_hash) "
-            "VALUES(?, ?, ?)",
-            [user_name, email, password]
+            "INSERT INTO users (user_name, email, password_hash) VALUES (?, ?, ?)",
+            [user_name, email, password_hash]
         )
         return True
+    
+    @staticmethod
+    def get_count_of_users():
+        # Т.к. fetchall возвращает список с кортежом, т.е. [(2,)],
+        # то надо дополнительно написать [0][0]
+        count = Database.fetchall("SELECT COUNT(*) FROM users")[0][0]
+        return count
+    
+    @staticmethod
+    def can_be_logged_in(user_or_email: str, password: str):
+        # 1. Проверить, что пользователь с таким именем или электронной почтой есть
+        users = Database.fetchall(
+            "SELECT * FROM users WHERE user_name = ? OR email = ?",
+            [user_or_email, user_or_email]
+        )
+        if not users:
+            return False
+        
+        # 2. Берем хэш-пароля заданного пользователя
+        # users = [ (1, "nnn", "nnn@ayndex.ru", "asfksdhfihsiuh523454534jh534kjkhk34j534") ]
+        user = users[0]
+        real_password_hash = user[3]
+
+        # 3. Сравниваем хэш хранящийся в базе данных и хэш пароля,
+        # который попытались ввести
+        password_hash = hashlib.md5( password.encode() ).hexdigest()
+        if real_password_hash != password_hash:
+            return False
+        return True
+    
+    def find_user_id_by_name_or_email(username_or_email):
+        users = Database.fetchall(
+            "SELECT id FROM urers WHERE user_name = ? OR email = ?", 
+            [username_or_email, username_or_email]
+        )
+        if not users:
+            return None
+        
+        id = users[0][0]
+        return id 
