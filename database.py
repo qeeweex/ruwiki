@@ -180,4 +180,23 @@ class Database:
             return None
         
         id = users[0][0]
-        return id 
+        return id
+
+    @staticmethod
+    def get_articles_count_of_user(user_name):
+        user = Database.find_user_id_by_name_or_email(user_name)
+        if user is None:
+            return 0 
+        
+        article_count = Database.fetchall(
+            "SELECT COUNT (*) FROM articles WHERE author_id = ? and ", [user]
+        )
+        
+        return article_count[0][0]
+    
+    @staticmethod
+    def get_user_names():
+        names = Database.fetchall(
+            "SELECT (user_name) FROM users"
+        )
+        return names[0]
