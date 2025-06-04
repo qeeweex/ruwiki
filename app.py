@@ -7,15 +7,14 @@ from flask import (
     send_from_directory,
     abort,
     flash,
-    session,
-)
+    session)
 import os
 from article import Article
 from database import Database
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'guzinibambini'
+app.config["SECRET_KEY"] = "dekou"
 Database.create_tables()
 
 # Создаем по умолчанию папку 'uploads/' для загрузки картинок
@@ -23,69 +22,64 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template('register.html', error=request.args.get("error"))
     
-    # POST-запрос
+
     user_name = request.form.get("user_name")
     email = request.form.get("email")
     password = request.form.get("password")
     password_repeat = request.form.get("password_repeat")
+    print(password_repeat)
 
     if not user_name:
-        flash("Имя пользователя (user_name) не может быть пустым!")
-        # return redirect(url_for('register'))
+        flash("Имя пользователя не может быть пустым!")
         return redirect(request.url)
 
     if not email:
-        flash("Электронная почта не может быть пустой!")
+        flash("Email не может быть пустым!")
         return redirect(request.url)
 
     if not password:
-        flash("Пароль не может быть пустым!")
+        flash("Password не может быть пустым!")
         return redirect(request.url)
 
     if not password_repeat:
-        flash("Повторите пароль!")
+        flash("Password не может быть пустым!")
         return redirect(request.url)
-    
+
     if password != password_repeat:
         flash("Пароли не совпадают!")
         return redirect(request.url)
-
+    
     saved = Database.register_user(user_name, email, password)
     if not saved:
-        flash("Пользователь с таким никнеймом или электронной почтой уже есть!")
+        flash("Пользователем с таким user_name или почтой есть!!")
         return redirect(request.url)
     
     return redirect(url_for('login'))
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
-
-    # POST-запрос
+        return render_template('login.html', error=request.args.get("error"))
     user_name = request.form.get("user_name")
     password = request.form.get("password")
 
-    if not Database.can_be_logged_in(user_name, password):
-        flash("Такого пользователя не существует или неверный пароль!")
+    if not Database.can_be_logged_in(user_name,password):
+        flash("Такой пользователь не существует или нет такого пользователя")
         return redirect(request.url)
     
-    session["user_id"] = Database.find_user_id_by_name_or_email(user_name)
-    return redirect(url_for("index"))
-
+    session['user_id'] = Database.find_user_id_by_name_or_email(user_name)
+    return redirect(url_for('index'))
 
 @app.route("/logout", methods=["POST"])
 def logout():
-    if "user_id" in session:
+    if 'user_id' in session:
         session.clear()
     return redirect(url_for("index"))
-
 
 @app.route("/favicon.ico")
 def favicon():
@@ -126,9 +120,14 @@ def create_article():
     else:
         image_path = None
 
-    author = Database.find_article_by_id(session["user_id"])
+    author = Database.find_user_by_id(session['user_id'])
     saved = Database.save(
-        Article(title, content, image_path)
+        Article(
+            title=title, 
+            content=content, 
+            image=image_path, 
+            author=author
+        )
     )
     if not saved:
         return redirect(url_for('create_article', error=True))
@@ -189,11 +188,7 @@ def index():
     for i in range(0, len(articles), count_in_group): # 0, 4, 8, 12, ...
         groups.append(articles[i:i+count_in_group]) # [0:4], [4:8], [8:12], ...
 
-    return render_template(
-        "index.html",
-        groups=groups,
-        user_count=Database.get_count_of_users()
-    )
+    return render_template("index.html", groups=groups, user_count=Database.count_users())
 
 
 @app.route('/uploads/<filename>')
